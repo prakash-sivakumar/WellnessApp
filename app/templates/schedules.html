@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <style type="text/css">
+
+        .agenda {  }
+        /* Dates */
+        .agenda .agenda-date { width: 170px; }
+        .agenda .agenda-date .dayofmonth {
+          width: 40px;
+          font-size: 40px;
+          line-height: 40px;
+          float: left;
+          text-align: right;
+          margin-right: 20px;
+        }
+
+        .agenda .agenda-date .shortdate {
+          font-size: 0.75em;
+        }
+
+
+        /* Times */
+        .agenda .agenda-time {
+            width: 240px;
+        }
+
+
+        /* Events */
+        .agenda .agenda-events { width: 280px; }
+        .agenda-checkbox {
+            width : 10px;
+        }
+        .agenda .agenda-events .agenda-event {  }
+
+        @media (max-width: 767px) {
+        }
+    </style>
+    <div class="container">
+
+        <h2>Agenda</h2>
+        <p class="lead">
+            Here are your upcoming events!
+        </p>
+
+        <hr />
+
+        <div class="agenda">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Event</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Single event in a single day -->
+                        {% for key in data.keys() %}
+                            {% set first = True %}
+                            {% for event in data[key] %}
+                                {% set dateArray = event["date"].split("/") %}
+                                <tr>
+                                    {% if first %}
+                                        <td class="agenda-date" class="active" rowspan= "{{data[key] |length}}">
+                                            <div class="dayofmonth">{{dateArray[1]}}</div>
+                                            <div class="dayofweek">{{event["day"]}}</div>
+                                            <div class="shortdate text-muted">{{event["month"]}}, {{event["year"]}}</div>
+                                        </td>
+                                        {% set first = False %}
+                                    {% endif %}
+                                        <td class="agenda-time">
+                                            {{event["time1"]}} - {{event["time2"]}}
+                                        </td>
+                                        <td class="agenda-events">
+                                            <div class="agenda-event">
+                                                {{event["event"]}}
+                                            </div>
+                                        </td>
+                                        <td class = "agenda-checkbox">
+                                            <input class = "event-checkbox" type="checkbox" name="{{event['_id']}}" id = "checkbox"/>&nbsp;
+                                        </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                        <!--<tr>-->
+                            <!--<td class="agenda-date" class="active" rowspan="1">-->
+                                <!--<div class="dayofmonth">26</div>-->
+                                <!--<div class="dayofweek">Saturday</div>-->
+                                <!--<div class="shortdate text-muted">July, 2014</div>-->
+                            <!--</td>-->
+                            <!--<td class="agenda-time">-->
+                                <!--5:30 AM-->
+                            <!--</td>-->
+                            <!--<td class="agenda-events">-->
+                                <!--<div class="agenda-event">-->
+                                    <!--Club activity-->
+                                <!--</div>-->
+                            <!--</td>-->
+                        <!--</tr>-->
+
+                        <!--&lt;!&ndash; Multiple events in a single day (note the rowspan) &ndash;&gt;-->
+                        <!--<tr>-->
+                            <!--<td class="agenda-date" class="active" rowspan="3">-->
+                                <!--<div class="dayofmonth">24</div>-->
+                                <!--<div class="dayofweek">Thursday</div>-->
+                                <!--<div class="shortdate text-muted">July, 2014</div>-->
+                            <!--</td>-->
+                            <!--<td class="agenda-time">-->
+                                <!--8:00 - 9:00 AM-->
+                            <!--</td>-->
+                            <!--<td class="agenda-events">-->
+                                <!--<div class="agenda-event">-->
+                                    <!--Doctor's Appointment-->
+                                <!--</div>-->
+                            <!--</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td class="agenda-time">-->
+                                <!--10:15 AM - 12:00 PM-->
+                            <!--</td>-->
+                            <!--<td class="agenda-events">-->
+                                <!--<div class="agenda-event">-->
+                                    <!--Exercises-->
+                                <!--</div>-->
+                            <!--</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td class="agenda-time">-->
+                                <!--7:00 - 9:00 PM-->
+                            <!--</td>-->
+                            <!--<td class="agenda-events">-->
+                                <!--<div class="agenda-event">-->
+                                    <!--Exam-->
+                                <!--</div>-->
+                            <!--</td>-->
+                        <!--</tr>-->
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-md-offset-4">
+        <a class="btn btn-primary" href="{{ url_for('addSchedule') }}" role="button">Add</a>
+        <!--<a class="btn btn-primary" href="{{ url_for('addSchedule') }}" role="button">Delete</a>-->
+        <button class="btn btn-primary" onclick="deleteEvent()">Delete</button>
+    </div>
+
+    <script type="text/javascript">
+        function deleteEvent() {
+            var apiJson = new Object()
+            var elements = document.getElementsByClassName("event-checkbox");
+            var objectIds = new Array()
+            for(var i = 0; i < elements.length; i++) {
+                if(elements[i].checked) {
+                    objectIds.push(elements[i].getAttribute("name"))
+                }
+            }
+            apiJson.objectIds = objectIds
+            if(objectIds.length != 0) {
+                $.ajax ({
+                    url: "/deleteEvent",
+                    type: "POST",
+                    data: JSON.stringify(apiJson),
+                    contentType: "application/json; charset=utf-8",
+                    success: function(){
+                        window.location = "/schedules";
+                    }
+                });
+            }
+        }
+    </script>
+
+{% endblock %}
+

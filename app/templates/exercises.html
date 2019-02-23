@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style type="text/css">
+
+        .agenda {  }
+        /* Dates */
+        .agenda .agenda-date { width: 170px; }
+        .agenda .agenda-date .dayofmonth {
+          width: 40px;
+          font-size: 40px;
+          line-height: 40px;
+          float: left;
+          text-align: right;
+          margin-right: 20px;
+        }
+
+        .agenda .agenda-date .shortdate {
+          font-size: 0.75em;
+        }
+
+
+        /* Times */
+        .agenda .agenda-time {
+            width: 240px;
+        }
+
+
+        /* Events */
+        .agenda .agenda-events { width: 280px; }
+        .agenda-checkbox {
+            width : 10px;
+        }
+        .agenda .agenda-events .agenda-event {  }
+
+        @media (max-width: 767px) {
+        }
+    </style>
+    <div class="container">
+
+        <h2>Exercises</h2>
+        <p class="lead">
+            Here's your exercising streak this year!
+        </p>
+
+        <hr />
+
+    </div>
+
+    <div class="container" id="calendar_basic" style="width: 1000px; height: 200px;"></div>
+    
+    <div class="container" style="width: 900px; height: 300px;">
+        <h3> Check-in exercises </h3>
+        <form action="/addEvent" method="POST">
+            <div class="row">
+            <div class="form-group col-md-4" style="width: 350px">
+                <label for="eventName">Exercise type</label>
+                <input type="email" class="form-control" id = "exercisetype" name = "exercisetype" placeholder="Enter exercise">
+            </div>
+ 
+
+            <div class = "form-group col-md-4">
+                <label for="datetimepicker1">Date</label>
+                <div class='input-group date' id='datetimepicker1' name="datetimepicker1">
+                    <input type='text' class="form-control" placeholder="Enter check-in date"/>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+           </div>
+
+            <div class="row">
+            <div class = "form-group col-md-4">
+                <a class="btn btn-primary" onclick="addExercise()" role="button">Check-in</a>
+            </div>
+            </div>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        console.log("test");
+        var data = {{data | safe}};
+
+        $(function () {
+            $('#datetimepicker1').datetimepicker({
+              format: 'YYYY-MM-DD'
+            });
+        });
+
+        google.charts.load("current", {packages:["calendar"]});
+        google.charts.setOnLoadCallback(drawChart);
+
+       function drawChart() {
+           var newData = [];
+           data.forEach(function(line) {
+               dateSplit = line[0].split('-')
+               newData.push([new Date(Number(dateSplit[0]), Number(dateSplit[1]) - 1, Number(dateSplit[2])), line[1]]);
+           });
+           console.log(newData);
+           var dataTable = new google.visualization.DataTable();
+           dataTable.addColumn({ type: 'date', id: 'Date' });
+           dataTable.addColumn({ type: 'number', id: 'Workout' });
+           dataTable.addRows(newData);
+           // dataTable.addRows([
+           //    [ new Date(2018, 9, 4), 1 , 'Gym'],
+           //    [ new Date(2018, 9, 5), 1, 'Gym'],
+           //    [ new Date(2018, 9, 12), 1, 'Gym'],
+           //    [ new Date(2018, 9, 13), 1, 'Gym'],
+           //    [ new Date(2018, 9, 19), 1, 'Gym'],
+           //    [ new Date(2018, 9, 23), 1 , 'Gym'],
+           //    [ new Date(2018, 9, 24), 1 , 'Gym'],
+           //    [ new Date(2018, 9, 30), 1 , 'Gym']
+           //  ]);
+
+           var chart = new google.visualization.Calendar(document.getElementById('calendar_basic'));
+
+           var options = {
+             height: 350,
+             colorAxis: {minValue: 1, maxValue: 1, colors:['#00ac2b','#004411']},
+             noDataPattern: {
+               backgroundColor: 'edf3ff',
+               color: '#e2e2e2'
+             }
+           };
+
+           chart.draw(dataTable, options);
+       }
+
+       function addExercise() {
+           var dateJSON = new Object()
+           if($("#exercisetype").val())
+               dateJSON.exercisetype = $("#exercisetype").val();
+           var date1String = $("#datetimepicker1").find("input").val();
+           if(date1String!="") {
+               dateJSON.date = date1String;
+           }
+
+           if(dateJSON.exercisetype && dateJSON.date) {
+               $.ajax ({
+                   url: "/addExercise",
+                   type: "POST",
+                   data: JSON.stringify(dateJSON),
+                   contentType: "application/json; charset=utf-8",
+                   success: function(){
+                   window.location = "/exercises";
+                   }
+               });
+           }
+       }
+
+    </script>
+
+{% endblock %}
+

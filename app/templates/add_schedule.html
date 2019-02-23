@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <form action="/addEvent" method="POST">
+        <div class="form-group">
+            <label for="eventName">Event name</label>
+            <input type="email" class="form-control" id = "eventName" name = "eventName" placeholder="Enter event">
+        </div>
+
+        <div class = "form-group col-md-4">
+            <label for="datetimepicker1">Date</label>
+            <div class='input-group date' id='datetimepicker1' name="datetimepicker1">
+                <input type='text' class="form-control" placeholder="Enter start date and time"/>
+                <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group col-md-4">
+            <label for="datetimepicker1">From</label>
+            <div class='input-group date' id='datetimepicker2'>
+                <input type='text' class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-time"></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group col-md-4">
+            <label for="datetimepicker1">To</label>
+            <div class='input-group date' id='datetimepicker3'>
+                <input type='text' class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-time"></span>
+                </span>
+            </div>
+        </div>
+
+        <a class="btn btn-primary" onclick="addEvent()" role="button">Add Event</a>
+    </form>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker1').datetimepicker();
+            $('#datetimepicker2').datetimepicker({
+                format: 'LT'
+            });
+            $('#datetimepicker3').datetimepicker({
+                format: 'LT'
+            });
+            $("#datetimepicker2").on("dp.change", function (e) {
+                $('#datetimepicker3').data("DateTimePicker").minDate(e.date);
+            });
+        });
+
+        function addEvent() {
+            console.log("abc")
+            var dateJSON = new Object()
+            if($("#eventName").val())
+                dateJSON.eventName = $("#eventName").val();
+            var time1String = $("#datetimepicker2").find("input").val();
+            if(time1String!="") {
+                dateJSON.time1 = time1String;
+            }
+            var time2String = $("#datetimepicker3").find("input").val();
+            if(time2String!="") {
+                dateJSON.time2 = time2String;
+            }
+            var date1String = $("#datetimepicker1").find("input").val();
+            date1String = date1String.split(" ")[0];
+            if(date1String!="") {
+                dateJSON.isoDate = new Date(date1String + " " + time2String).toISOString();
+                dateJSON.date = date1String;
+            }
+
+            if(dateJSON.eventName && dateJSON.time1 && dateJSON.time2 && dateJSON.isoDate) {
+                console.log("yes")
+                $.ajax ({
+                    url: "/addEvent",
+                    type: "POST",
+                    data: JSON.stringify(dateJSON),
+                    contentType: "application/json; charset=utf-8",
+                    success: function(){
+                     window.location = "/addSchedule";
+                }
+                });
+            }
+        }
+    </script>
+
+{% endblock %}

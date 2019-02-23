@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+	body {
+		color: black;
+	}
+
+	blockquote{
+	    border-left:none;
+	    background: url('https://wallpaperlayer.com/img/2015/6/gaussian-blur-wallpaper-3237-3441-hd-wallpapers.jpg');
+	    background-repeat: no-repeat;
+	    background-attachment: fixed;
+	    background-size: cover;
+	}
+
+	.quote-badge{
+	    background-color: rgba(0, 0, 0, 0.2);   
+	}
+
+	.quote-box{
+	    font-family: "Catamaran", "Times New Roman", Georgia, Serif;
+	    overflow: hidden;
+	    /*margin-top: -50px;*/
+	    /*padding-top: -100px;*/
+	    border-radius: 17px;
+	    background-color: #4ADFCC;
+	    margin-top: 25px;
+	    color:black;
+	    width: 100%;
+	    box-shadow: 2px 2px 2px 2px #E0E0E0;
+	    
+	}
+
+	.quotation-mark{
+	    
+	    margin-top: -10px;
+	    font-weight: bold;
+	    font-size:100px;
+	    color:black;
+	    font-family: "Times New Roman", Georgia, Serif; 
+	}
+
+	.quote-text{
+	    font-size: 21px;
+	    margin-top: -65px;
+	}
+
+	button:hover {
+	  box-shadow: 4px 4px;
+	  transition: 1s;
+	  background-color: #4CAF50;
+	}
+
+	button:active {
+	transform: translateY(4px);
+	}
+</style>
+<blockquote class="quote-box">
+      <p class="quotation-mark">
+        “
+      </p>
+      <p class="quote-text">
+      </p>
+      <hr>
+      <div class="blog-post-actions">
+        <p id="author" class="blog-post-bottom pull-left">
+        </p>
+        <p class="blog-post-bottom pull-right">
+      		<br><button class="btn text-center" id="next-quote">Next Quote</button>
+        </p>
+      </div>
+    </blockquote>
+
+<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/325881722&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+
+    <script> 
+    	$(document).ready(function(){
+	    	var randomVar;
+	    	getQuote();
+	    	function getQuote(){
+		    	var url = "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=jsonp&jsonp=?";
+	    	  $.getJSON(url, function(data){
+	    	  	randomVar = data.quoteText; 
+	    	    $(".quote-text").hide().fadeIn(1000).html('"' + data.quoteText +'"');
+	    	    $("#author").html("- " + data.quoteAuthor); 
+	    			randomVar = data.quoteText;  
+    			});
+	    	}
+	    	$("#next-quote").on("click",function(){
+	    		getQuote();
+	    	});
+    	});
+    </script>
+{% endblock %}
